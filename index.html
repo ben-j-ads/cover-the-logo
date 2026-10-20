@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cover the Logo</title>
+  <style>
+    @font-face { font-family: "Bricolage Grotesque Condensed"; src: url("fonts/BricolageGrotesque-ExtraBoldCondensed.ttf") format("truetype"); font-weight: 800; font-style: normal; font-display: swap; }
+    @font-face { font-family: "Archivo"; src: url("fonts/Archivo-Medium.ttf") format("truetype"); font-weight: 500; font-style: normal; font-display: swap; }
+    @font-face { font-family: "Archivo"; src: url("fonts/Archivo-Bold.ttf") format("truetype"); font-weight: 700; font-style: normal; font-display: swap; }
+    :root {
+      --paper: #eef0e4; --paper-raised: #f7f8f1; --ink: #272818; --ink-muted: #5c5e48;
+      --rule: #c9cdb5; --lime: #dcf04a; --on-lime: #272818; --moss: #56620a;
+      --font-display: "Bricolage Grotesque Condensed", "Arial Narrow", "Helvetica Neue", sans-serif;
+      --font-text: Archivo, "Helvetica Neue", Arial, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --paper: #17180d; --paper-raised: #212216; --ink: #eef0e4; --ink-muted: #a6a98f; --rule: #3d3f2e; --moss: #b9cc3a; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 20px 16px 48px; background: var(--paper); color: var(--ink); font-family: var(--font-text); font-weight: 500; line-height: 1.5; }
+    .wrap { max-width: 760px; margin: 0 auto; }
+    .brandbar { display: block; width: 120px; }
+    .brandbar img { display: block; width: 100%; height: auto; }
+    h1, h2 { font-family: var(--font-display); font-weight: 800; }
+    h1 { margin: 18px 0 0; font-size: 3rem; line-height: 1; letter-spacing: -0.01em; text-transform: lowercase; }
+    h1 mark { background: linear-gradient(transparent 28%, var(--lime) 28%, var(--lime) 92%, transparent 92%); color: var(--on-lime); padding: 0 4px; margin: 0 -4px; }
+    h2 { font-size: 1.5rem; margin: 0 0 12px; }
+    .subtitle { color: var(--ink-muted); margin: 6px 0 20px; }
+    b { font-weight: 700; }
+    a { color: var(--moss); text-decoration: underline; }
+    a:hover { background: var(--lime); color: var(--on-lime); }
+    .panel { background: var(--paper-raised); border: 1px solid var(--rule); padding: 18px; margin-bottom: 16px; }
+    :focus-visible { outline: 2px solid var(--ink) !important; outline-offset: 2px; }
+
+    #drop { border: 1.5px dashed var(--ink-muted); padding: 34px 16px; text-align: center; color: var(--ink-muted); }
+    #drop.over { background: var(--lime); color: var(--on-lime); border-color: var(--ink); }
+    #drop b { color: var(--ink); }
+    #drop.over b { color: var(--on-lime); }
+    #stage { display: none; }
+    #stage.on { display: block; }
+    .canvaswrap { background: var(--paper); border: 1px solid var(--rule); padding: 8px; text-align: center; }
+    canvas#view { display: inline-block; max-width: 100%; max-height: 72vh; width: auto; height: auto; cursor: crosshair; touch-action: none; vertical-align: top; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+    button, label.btn { font: 700 0.95rem var(--font-text); padding: 10px 14px; border: 1.5px solid var(--ink); background: var(--paper); color: var(--ink); border-radius: 0; cursor: pointer; }
+    button:hover, label.btn:hover { background: var(--lime); color: var(--on-lime); }
+    button:disabled { opacity: .4; cursor: default; background: var(--paper); color: var(--ink); }
+    button.primary { background: var(--lime); color: var(--on-lime); }
+    input[type="file"] { position: absolute; width: 1px; height: 1px; opacity: 0; }
+    input[type="file"]:focus-visible + span { outline: 2px solid var(--ink); outline-offset: 2px; }
+    .count { color: var(--ink-muted); font-size: 0.9rem; margin-left: auto; }
+    .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px 16px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--rule); }
+    label.field { display: block; color: var(--ink-muted); font-size: 0.88rem; }
+    label.field input[type="text"] { display: block; width: 100%; margin-top: 4px; padding: 9px 10px; border: 1.5px solid var(--rule); border-radius: 0; background: var(--paper); color: var(--ink); font: 700 1rem var(--font-text); }
+    label.field input[type="text"]:hover { border-color: var(--ink); }
+    label.check { display: flex; gap: 8px; align-items: center; color: var(--ink); font-size: 0.95rem; }
+    label.check input { accent-color: var(--moss); width: 18px; height: 18px; margin: 0; }
+    .hint { color: var(--ink-muted); font-size: 0.85rem; margin: 10px 0 0; }
+    #msg { color: var(--on-lime); background: var(--lime); font-weight: 700; padding: 8px 10px; margin-top: 12px; display: none; }
+
+    ol.steps { margin: 0; padding-left: 20px; color: var(--ink-muted); }
+    ol.steps li { margin-bottom: 8px; }
+    ol.steps b { color: var(--ink); }
+    details.learn { border-top: 1px solid var(--rule); padding: 12px 0; }
+    details.learn:first-of-type { border-top: 0; padding-top: 0; }
+    details.learn summary { cursor: pointer; font-weight: 700; }
+    details.learn summary:hover { background: var(--lime); color: var(--on-lime); }
+    details.learn .body { color: var(--ink-muted); font-size: 0.95rem; margin-top: 10px; }
+    details.learn .body p { margin: 0 0 10px; }
+    .caveats p { color: var(--ink-muted); font-size: 0.95rem; margin: 0 0 10px; }
+    .caveats p:last-child { margin: 0; }
+    .caveats b { color: var(--ink); }
+    .site-foot { margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--rule); color: var(--ink-muted); font-size: 0.82rem; }
+    .site-foot img { display: block; width: 150px; height: auto; margin-bottom: 8px; }
+    .site-foot p { margin: 0; }
+    .tag { display: inline-block; background: var(--lime); color: var(--on-lime); font-weight: 700; font-size: 0.7rem; padding: 0 5px; margin-right: 6px; border: 1.5px solid var(--ink); }
+    @media (max-width: 520px) { h1 { font-size: 2.4rem; } .panel { padding: 14px; } .count { margin-left: 0; width: 100%; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="brandbar" href="https://github.com/ben-j-ads" aria-label="ben.j.ads">
+      <picture><source media="(prefers-color-scheme: dark)" srcset="logo/benjads-base-paper-transparent.svg"><img src="logo/benjads-base-olive-transparent.svg" alt="ben.j.ads"></picture>
+    </a>
+    <h1>cover <mark>the logo</mark></h1>
+    <p class="subtitle">Would anyone know whose ad this is with the brand removed? Cover the name and logo, then ask people who buy in the category.</p>
+
+    <section class="panel">
+      <div id="drop">
+        <p style="margin:0 0 12px"><b>Drop an ad here</b>, paste one, or choose a file.</p>
+        <div class="row" style="justify-content:center;margin-top:0">
+          <label class="btn"><input type="file" id="file" accept="image/*"><span>Choose image</span></label>
+          <button id="sample" type="button">Try a sample</button>
+        </div>
+        <p class="hint">The image stays in your browser. Nothing is uploaded.</p>
+      </div>
+
+      <div id="stage">
+        <div class="canvaswrap"><canvas id="view" aria-label="Your ad. Drag to draw a redaction bar over the brand."></canvas></div>
+        <p class="hint">Drag over each brand name, logo or product mark. Each one gets a redaction bar. Cover everything that gives the brand away, including packaging and the URL.</p>
+        <div class="row">
+          <button id="undo" type="button" disabled>Undo</button>
+          <button id="clear" type="button" disabled>Clear bars</button>
+          <label class="btn"><input type="file" id="file2" accept="image/*"><span>New image</span></label>
+          <span class="count" id="count">No bars yet</span>
+        </div>
+        <div class="opts">
+          <label class="field">Question under the ad<input type="text" id="q" maxlength="60" value="who made this?"></label>
+          <label class="field">Caption<input type="text" id="cap" maxlength="90" value="Brand covered. Say who you think made it."></label>
+          <label class="check"><input type="checkbox" id="foot" checked> Add the question strip</label>
+          <label class="check"><input type="checkbox" id="tab" checked> Lime tab on each bar</label>
+        </div>
+        <div class="row">
+          <button id="save" type="button" class="primary" disabled>Download PNG</button>
+        </div>
+        <div id="msg" role="alert"></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>How to run the test</h2>
+      <ol class="steps">
+        <li><b>Cover everything.</b> Name, logo, product shot, tagline, web address. If a mascot or colour is the thing you are testing, leave it showing and cover the rest.</li>
+        <li><b>Show it to category buyers.</b> People who buy what you sell, not colleagues and not your followers. Ask "who made this?" and write down the answer word for word.</li>
+        <li><b>Count.</b> How many named you, how many named someone else, how many did not know. Fame is the share who name you. Uniqueness is how many of the namers named only you.</li>
+        <li><b>Score it.</b> Put the counts in <a href="https://github.com/ben-j-ads/assetscan">assetscan</a>, which draws the distinctive asset grid.</li>
+      </ol>
+    </section>
+
+    <section class="panel">
+      <h2>Why this test</h2>
+      <details class="learn">
+        <summary>Distinctive assets</summary>
+        <div class="body">
+          <p>A distinctive asset is something people link to your brand without seeing the name: a colour, a shape, a sound, a character. Ehrenberg-Bass research (Romaniuk, <i>Building Distinctive Brand Assets</i>, 2018) scores assets on fame, how many people link the asset to the brand, and uniqueness, how many link it only to that brand.</p>
+          <p>Covering the brand is the quickest way to see what an ad is carrying without the name. Most ads fail this and the team finds out after the spend.</p>
+        </div>
+      </details>
+      <details class="learn">
+        <summary>Why a redaction bar and not a blur</summary>
+        <div class="body">
+          <p>A blur or a pixelate can be reversed by squinting, and logos survive it more often than you would think. A solid bar removes the pixels. Everything under it is gone from the exported file.</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="panel caveats">
+      <h2>Read this before you trust the answers</h2>
+      <p><b>A few friends is not a test.</b> People who know you will guess your brand. You need category buyers, and enough of them that one lucky guess does not move the result.</p>
+      <p><b>This tool does not find logos for you.</b> You draw the bars. Anything you miss stays visible and will skew the answers, so look at the export before you send it.</p>
+      <p><b>One ad is one asset set.</b> A good result for one execution says nothing about the brand's other ads.</p>
+    </section>
+
+    <footer class="site-foot">
+      <picture><source media="(prefers-color-scheme: dark)" srcset="logo/benjads-footnote-paper-transparent.svg"><img src="logo/benjads-footnote-olive-transparent.svg" alt="ben.j.ads"></picture>
+      <p><span class="tag">1</span>Distinctive asset method: Romaniuk, Building Distinctive Brand Assets (2018). Marketing science, given away free, for people who spend money.</p>
+    </footer>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const INK = '#272818', LIME = '#dcf04a', PAPER = '#eef0e4', MUTED = '#5c5e48';
+    const MAX_EDGE = 2400;       // longest edge of the working image
+    const MIN_BAR = 6;           // smallest bar, in image pixels, before a drag counts as a click
+    const view = $('view'), vctx = view.getContext('2d');
+    let img = null;              // working bitmap (canvas or image)
+    let iw = 0, ih = 0;
+    let bars = [];               // {x, y, w, h} in image pixels
+    let drag = null;
+
+    // ---- loading ----
+    function showMsg(t) { $('msg').textContent = t; $('msg').style.display = t ? 'block' : 'none'; }
+    function setImage(source, w, h) {
+      const k = Math.min(1, MAX_EDGE / Math.max(w, h));
+      iw = Math.round(w * k); ih = Math.round(h * k);
+      const c = document.createElement('canvas'); c.width = iw; c.height = ih;
+      c.getContext('2d').drawImage(source, 0, 0, iw, ih);   // strips metadata, caps size
+      img = c; bars = []; drag = null;
+      view.width = iw; view.height = ih;
+      $('drop').style.display = 'none'; $('stage').classList.add('on');
+      showMsg(''); render(); sync();
+    }
+    function loadFile(f) {
+      if (!f) return;
+      if (!/^image\//.test(f.type)) { alert('That is not an image file.'); return; }
+      const url = URL.createObjectURL(f), im = new Image();
+      im.onload = () => { setImage(im, im.naturalWidth, im.naturalHeight); URL.revokeObjectURL(url); };
+      im.onerror = () => { URL.revokeObjectURL(url); alert('This browser could not open that image. Try a PNG or JPG.'); };
+      im.src = url;
+    }
+    $('file').addEventListener('change', (e) => { loadFile(e.target.files[0]); e.target.value = ''; });
+    $('file2').addEventListener('change', (e) => { loadFile(e.target.files[0]); e.target.value = ''; });
+    ['dragenter', 'dragover'].forEach((t) => document.addEventListener(t, (e) => { e.preventDefault(); $('drop').classList.add('over'); }));
+    ['dragleave', 'drop'].forEach((t) => document.addEventListener(t, (e) => { e.preventDefault(); $('drop').classList.remove('over'); }));
+    document.addEventListener('drop', (e) => loadFile(e.dataTransfer && e.dataTransfer.files[0]));
+    document.addEventListener('paste', (e) => {
+      const it = [...(e.clipboardData ? e.clipboardData.items : [])].find((i) => i.type.startsWith('image/'));
+      if (it) loadFile(it.getAsFile());
+    });
+
+    // A made-up ad, so the tool can be tried without one. The brand is invented.
+    $('sample').addEventListener('click', () => {
+      const c = document.createElement('canvas'); c.width = 1080; c.height = 1080;
+      const x = c.getContext('2d');
+      x.fillStyle = '#2b4a6b'; x.fillRect(0, 0, 1080, 1080);
+      x.fillStyle = '#e9d7a8'; x.beginPath(); x.arc(780, 600, 300, 0, Math.PI * 2); x.fill();
+      x.fillStyle = '#c9553b'; x.fillRect(700, 400, 160, 420);
+      x.fillStyle = '#e9d7a8'; x.font = '800 150px "Bricolage Grotesque Condensed", "Arial Narrow", sans-serif';
+      x.fillText('Cold. Loud.', 70, 250); x.fillText('Yours.', 70, 400);
+      x.font = '800 90px "Bricolage Grotesque Condensed", "Arial Narrow", sans-serif'; x.fillStyle = '#fff';
+      x.fillText('FIZZO', 740, 640);
+      x.font = '700 34px Archivo, Arial, sans-serif'; x.fillStyle = '#e9d7a8';
+      x.fillText('Made-up sample ad. fizzo.example', 70, 1020);
+      setImage(c, 1080, 1080);
+    });
+
+    // ---- drawing ----
+    function drawBar(x, b, s, tab) {
+      x.fillStyle = INK; x.fillRect(b.x, b.y, b.w, b.h);
+      if (tab) {
+        const tw = Math.min(Math.max(b.h * 0.3, 10 * s), b.w * 0.25);
+        if (b.w >= tw * 3) { x.fillStyle = LIME; x.fillRect(b.x + b.w - tw, b.y, tw, b.h); }
+      }
+    }
+    function render() {
+      vctx.clearRect(0, 0, iw, ih);
+      if (!img) return;
+      vctx.drawImage(img, 0, 0);
+      const s = iw / 1080;
+      for (const b of bars) drawBar(vctx, b, s, $('tab').checked);
+      if (drag) {
+        const b = rectOf(drag);
+        vctx.fillStyle = 'rgba(39,40,24,.55)'; vctx.fillRect(b.x, b.y, b.w, b.h);
+        vctx.strokeStyle = LIME; vctx.lineWidth = Math.max(2, 2 * s); vctx.strokeRect(b.x, b.y, b.w, b.h);
+      }
+    }
+    function rectOf(d) {
+      return { x: Math.min(d.x0, d.x1), y: Math.min(d.y0, d.y1), w: Math.abs(d.x1 - d.x0), h: Math.abs(d.y1 - d.y0) };
+    }
+    function pt(e) {
+      const r = view.getBoundingClientRect();
+      return {
+        x: Math.min(iw, Math.max(0, (e.clientX - r.left) * (iw / r.width))),
+        y: Math.min(ih, Math.max(0, (e.clientY - r.top) * (ih / r.height))),
+      };
+    }
+    view.addEventListener('pointerdown', (e) => {
+      if (e.button > 0) return;
+      view.setPointerCapture(e.pointerId);
+      const p = pt(e); drag = { x0: p.x, y0: p.y, x1: p.x, y1: p.y }; render();
+    });
+    view.addEventListener('pointermove', (e) => { if (!drag) return; const p = pt(e); drag.x1 = p.x; drag.y1 = p.y; render(); });
+    function endDrag() {
+      if (!drag) return;
+      const b = rectOf(drag); drag = null;
+      if (b.w >= MIN_BAR && b.h >= MIN_BAR) bars.push(b);
+      render(); sync();
+    }
+    view.addEventListener('pointerup', endDrag);
+    view.addEventListener('pointercancel', () => { drag = null; render(); });
+    // A right click inside a bar removes it.
+    view.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      const p = pt(e); const i = bars.map((b, n) => [b, n]).reverse().find(([b]) => p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h);
+      if (i) { bars.splice(i[1], 1); render(); sync(); }
+    });
+
+    function sync() {
+      $('undo').disabled = !bars.length; $('clear').disabled = !bars.length; $('save').disabled = !bars.length;
+      $('count').textContent = bars.length ? `${bars.length} bar${bars.length > 1 ? 's' : ''}. Right click a bar to remove it.` : 'No bars yet';
+    }
+    $('undo').addEventListener('click', () => { bars.pop(); render(); sync(); });
+    $('clear').addEventListener('click', () => { bars = []; render(); sync(); });
+    $('tab').addEventListener('change', render);
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z' && img && document.activeElement.tagName !== 'INPUT') { e.preventDefault(); bars.pop(); render(); sync(); }
+    });
+
+    // ---- export ----
+    async function save() {
+      if (!img || !bars.length) return;
+      try { await document.fonts.load('800 100px "Bricolage Grotesque Condensed"'); await document.fonts.load('500 30px Archivo'); await document.fonts.load('700 30px Archivo'); } catch (e) {}
+      const s = iw / 1080, withFoot = $('foot').checked;
+      const footH = withFoot ? Math.round(300 * s) : 0;
+      const c = document.createElement('canvas'); c.width = iw; c.height = ih + footH;
+      const x = c.getContext('2d');
+      x.drawImage(img, 0, 0);
+      for (const b of bars) drawBar(x, b, s, $('tab').checked);
+      if (withFoot) {
+        const y0 = ih, m = 48 * s;
+        x.fillStyle = PAPER; x.fillRect(0, y0, iw, footH);
+        x.fillStyle = INK; x.fillRect(0, y0, iw, 4 * s);
+        const disp = (px) => `800 ${px}px "Bricolage Grotesque Condensed", "Arial Narrow", sans-serif`;
+        // wordmark, right
+        const wm = 48 * s; x.font = disp(wm); x.textBaseline = 'alphabetic';
+        const parts = ['ben', 'j', 'ads'], sq = 11 * s, gap = 6 * s;
+        const wmW = parts.reduce((a, p) => a + x.measureText(p).width, 0) + 2 * (sq + gap * 2);
+        let cx = iw - m - wmW; const wy = y0 + 138 * s;
+        for (const p of parts) {
+          x.fillStyle = INK; x.fillText(p, cx, wy); cx += x.measureText(p).width;
+          if (p !== 'ads') { x.fillStyle = LIME; x.strokeStyle = INK; x.lineWidth = 2 * s; x.fillRect(cx + gap, wy - sq, sq, sq); x.strokeRect(cx + gap, wy - sq, sq, sq); cx += sq + gap * 2; }
+        }
+        // question, left, shrunk to fit beside the wordmark
+        const q = $('q').value.trim().toLowerCase(); let fs = 130 * s;
+        x.font = disp(fs);
+        while (x.measureText(q).width > iw - 2 * m - wmW - 24 * s && fs > 40 * s) { fs -= 4 * s; x.font = disp(fs); }
+        x.fillStyle = INK; x.fillText(q, m, y0 + 138 * s);
+        // caption with the lime tag
+        const cap = $('cap').value.trim();
+        if (cap) {
+          const ty = y0 + 226 * s, t = 30 * s;
+          x.fillStyle = LIME; x.fillRect(m, ty - t + 4 * s, t, t); x.strokeStyle = INK; x.lineWidth = 2 * s; x.strokeRect(m, ty - t + 4 * s, t, t);
+          x.fillStyle = INK; x.font = `700 ${20 * s}px Archivo, Arial, sans-serif`; x.textAlign = 'center'; x.fillText('1', m + t / 2, ty - 5 * s); x.textAlign = 'left';
+          x.fillStyle = MUTED; x.font = `500 ${30 * s}px Archivo, Arial, sans-serif`; x.fillText(cap, m + t + 14 * s, ty);
+        }
+      }
+      c.toBlob((blob) => {
+        if (!blob) { showMsg('This browser could not make the file. Try a smaller image.'); return; }
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'cover-the-logo.png'; a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+        showMsg('Saved. Open the file and check that nothing gives the brand away before you send it.');
+      }, 'image/png');
+    }
+    $('save').addEventListener('click', save);
+  </script>
+</body>
+</html>
